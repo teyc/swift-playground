@@ -6,6 +6,11 @@ let AGE = "age"
 
 class TableViewDelegate: NSObject, NSTableViewDelegate
 {
+    func tableViewSelectionDidChange(notification: NSNotification) {
+        let tableView = notification.object as! NSTableView
+        print(tableView.selectedRow)
+    }
+    
     func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
         
         let columnIdentifier = tableColumn!.identifier;
@@ -14,6 +19,7 @@ class TableViewDelegate: NSObject, NSTableViewDelegate
         }
         
         let textField = NSTextField()
+        textField.backgroundColor = .None
         textField.controlSize = .SmallControlSize
         textField.bordered = false
         
@@ -90,6 +96,7 @@ ageColumn.width = 300
 ageColumn.title = "Age"
 table.addTableColumn(ageColumn)
 
+table.usesAlternatingRowBackgroundColors = true
 table.setDelegate(viewDelegate)
 table.setDataSource(dataSource)
 
