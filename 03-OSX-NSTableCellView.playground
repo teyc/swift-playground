@@ -1,0 +1,101 @@
+import Cocoa
+import XCPlayground
+
+let FIRST_NAME = "firstName"
+let AGE = "age"
+
+class TableViewDelegate: NSObject, NSTableViewDelegate
+{
+    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        
+        let columnIdentifier = tableColumn!.identifier;
+        if let view = tableView.makeViewWithIdentifier(columnIdentifier, owner: self) as? NSTableCellView {
+            return view;
+        }
+        
+        let textField = NSTextField()
+        textField.controlSize = .SmallControlSize
+        textField.bordered = false
+        
+        let newCell = NSTableCellView()
+        newCell.addSubview(textField)
+        newCell.identifier = columnIdentifier
+        newCell.textField = textField
+        newCell.addSubview(textField)
+        
+        let useMagicalLayoutCode = true
+        if (useMagicalLayoutCode) {
+            textField.translatesAutoresizingMaskIntoConstraints = false
+            
+            newCell.addConstraints(
+                NSLayoutConstraint.constraintsWithVisualFormat("H:|[textField]|",
+                    options: [],
+                    metrics: nil,
+                    views: ["textField" : textField]))
+            
+            newCell.addConstraints(
+                NSLayoutConstraint.constraintsWithVisualFormat("V:|[textField]|",
+                    options: [],
+                    metrics: nil,
+                    views: ["textField" : textField]))
+        }
+        
+        textField.bind(NSValueBinding,
+                       toObject: newCell,
+                       withKeyPath: "objectValue",
+                       options: nil)
+        textField.sizeToFit()
+        
+        return newCell
+    }
+    
+    
+}
+
+class DataSource : NSObject, NSTableViewDataSource
+{
+    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+        
+        let columnIdentifier = tableColumn!.identifier
+        switch columnIdentifier {
+        case FIRST_NAME:
+            return "First Name " + String(row)
+        case AGE:
+            return "Age " + String(row)
+        default:
+            return "Unknown"
+            
+        }
+    }
+    
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return 20;
+    }
+}
+
+let viewDelegate = TableViewDelegate()
+let dataSource = DataSource()
+
+let table = NSTableView(
+    frame: NSMakeRect(0, 0, 400, 100))
+
+let firstNameColumn = NSTableColumn(identifier: FIRST_NAME)
+firstNameColumn.width = 252
+firstNameColumn.title = "First Name"
+table.addTableColumn(firstNameColumn)
+
+
+let ageColumn = NSTableColumn(identifier: AGE)
+ageColumn.width = 300
+ageColumn.title = "Age"
+table.addTableColumn(ageColumn)
+
+table.setDelegate(viewDelegate)
+table.setDataSource(dataSource)
+
+let container = NSScrollView(
+    frame: NSMakeRect(0, 0, 400, 100))
+
+container.documentView = table
+container.hasVerticalScroller = true;
+XCPlaygroundPage.currentPage.liveView = container;
