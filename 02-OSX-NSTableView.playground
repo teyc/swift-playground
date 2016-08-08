@@ -44,6 +44,7 @@ class DataSource : NSObject, NSTableViewDataSource
 }
 
 let viewDelegate = TableViewDelegate()
+let dataSource = DataSource()
 
 var table = NSTableView(
     frame: NSMakeRect(0, 0, 400, 100))
@@ -58,7 +59,7 @@ ageColumn.title = "Age"
 table.addTableColumn(ageColumn)
 
 table.setDelegate(viewDelegate)
-table.setDataSource(DataSource())
+table.setDataSource(dataSource)
 
 let container = NSScrollView(
     frame: NSMakeRect(0, 0, 400, 100))
