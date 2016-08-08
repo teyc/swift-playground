@@ -1,0 +1,28 @@
+// Requires XCode 7.3.1
+import Cocoa
+import XCPlayground
+
+class ViewDelegate: NSObject
+{
+    
+    @objc func onButtonClick(sender: NSButton) {
+        sender.title = "Clicked"
+        print("Clicked")
+    }
+    
+}
+let viewDelegate = ViewDelegate()
+
+let button = NSButton()
+button.title = "Hello"
+button.bezelStyle = .RoundedBezelStyle
+button.setButtonType(NSButtonType.MomentaryPushInButton)
+button.sizeToFit()
+button.target = viewDelegate
+button.action = #selector(viewDelegate.onButtonClick)
+
+let container = NSView(frame: CGRect(x: 0, y: 0, width: 400, height: 300))
+container.addSubview(button)
+
+XCPlaygroundPage.currentPage.liveView = container;
+
