@@ -6,6 +6,8 @@ let AGE = "age"
 
 class TableViewDelegate: NSObject, NSTableViewDelegate
 {
+
+    
     func tableViewSelectionDidChange(notification: NSNotification) {
         let tableView = notification.object as! NSTableView
         print(tableView.selectedRow)
@@ -23,13 +25,14 @@ class TableViewDelegate: NSObject, NSTableViewDelegate
         textField.controlSize = .SmallControlSize
         textField.bordered = false
         
-        let newCell = NSTableCellView()
+        let rowHeight = tableView.rowHeight
+        let newCell = NSTableCellView(frame: CGRectMake(0, 0, 0, rowHeight))
         newCell.addSubview(textField)
         newCell.identifier = columnIdentifier
         newCell.textField = textField
         newCell.addSubview(textField)
         
-        let useMagicalLayoutCode = true
+        let useMagicalLayoutCode = false
         if (useMagicalLayoutCode) {
             textField.translatesAutoresizingMaskIntoConstraints = false
             
@@ -44,6 +47,9 @@ class TableViewDelegate: NSObject, NSTableViewDelegate
                     options: [],
                     metrics: nil,
                     views: ["textField" : textField]))
+        } else {
+            textField.autoresizingMask = [.ViewHeightSizable, .ViewWidthSizable]
+            newCell.autoresizingMask = [ .ViewHeightSizable, .ViewWidthSizable ]
         }
         
         textField.bind(NSValueBinding,
