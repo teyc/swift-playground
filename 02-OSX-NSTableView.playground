@@ -1,0 +1,69 @@
+import Cocoa
+import XCPlayground
+
+let FIRST_NAME = "firstName"
+let AGE = "age"
+
+class TableViewDelegate: NSObject, NSTableViewDelegate
+{
+    
+    // returns a single cell for a given column
+    func tableView(
+        tableView: NSTableView,
+        viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        
+        let columnIdentifier = tableColumn!.identifier
+        
+        var result : NSTextField? = tableView.makeViewWithIdentifier(columnIdentifier, owner: self) as? NSTextField
+        
+        if (result == nil) {
+            result = NSTextField()
+            result!.identifier = columnIdentifier
+            result?.bordered = false
+            
+        }
+        
+        switch columnIdentifier {
+        case FIRST_NAME:
+            result!.stringValue = "First Name " + String(row)
+        default:
+            result!.stringValue = "Age " + String(row)
+            
+        }
+        
+        return result
+    }
+    
+}
+
+class DataSource : NSObject, NSTableViewDataSource
+{
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return 50;
+    }
+}
+
+let viewDelegate = TableViewDelegate()
+
+var table = NSTableView(
+    frame: NSMakeRect(0, 0, 400, 100))
+
+let firstNameColumn = NSTableColumn(identifier: FIRST_NAME)
+firstNameColumn.width = 252
+firstNameColumn.title = "First Name"
+table.addTableColumn(firstNameColumn)
+
+let ageColumn = NSTableColumn(identifier: AGE)
+ageColumn.title = "Age"
+table.addTableColumn(ageColumn)
+
+table.setDelegate(viewDelegate)
+table.setDataSource(DataSource())
+
+let container = NSScrollView(
+    frame: NSMakeRect(0, 0, 400, 100))
+
+container.documentView = table
+container.hasVerticalScroller = true;
+XCPlaygroundPage.currentPage.liveView = container;
+
