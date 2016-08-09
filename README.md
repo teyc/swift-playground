@@ -15,7 +15,7 @@ it is often quicker.
 
 Here's a simple example, and an obligatory screenshot.
 
-![Hello world](Swift.png?raw=true "Swift playground")
+![Hello world](Swift.png?raw=true "Swift playground - Hello World")
 
 If you are trying it out, the results are hidden under the 
 **View > Assistant Editor > Show Assistant Editor**
