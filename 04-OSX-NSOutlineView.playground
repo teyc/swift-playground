@@ -25,13 +25,14 @@ func makeOutline() -> NSOutlineView {
     column.title = "File Name"
     column.width = 200
     
-    let outline = NSOutlineView(frame: NSMakeRect(0, 0, 200, 150))
+    let outline = NSOutlineView(frame: NSMakeRect(0, 0, 250, 150))
     outline.addTableColumn(column)
+    outline.selectionHighlightStyle = .Regular
     return outline
 }
 
 func makeOutlineDelegate() -> NSOutlineViewDelegate {
-
+    
     class OutlineViewDelegate : NSObject, NSOutlineViewDelegate {
         
         
@@ -60,8 +61,7 @@ func makeOutlineDelegate() -> NSOutlineViewDelegate {
                            withKeyPath: "objectValue",
                            options: nil)
             textField.bordered = false
-            textField.backgroundColor = nil
-            
+            textField.drawsBackground = false
             return newCell
         }
     }
@@ -167,8 +167,13 @@ let outlineDelegate = makeOutlineDelegate()
 outline.setDataSource(dataSource)
 outline.setDelegate(outlineDelegate)
 
+outline.expandItem(outline.itemAtRow(4), expandChildren: true)
+outline.expandItem(outline.itemAtRow(3), expandChildren: true)
+outline.expandItem(outline.itemAtRow(2), expandChildren: true)
+outline.expandItem(outline.itemAtRow(0), expandChildren: true)
+
 let container = NSScrollView(
-    frame: NSMakeRect(0, 0, 400, 100))
+    frame: NSMakeRect(0, 0, 400, 160))
 
 container.documentView = outline
 container.hasVerticalScroller = true;
