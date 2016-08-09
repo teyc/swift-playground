@@ -1,40 +1,34 @@
 // Requires XCode 7.3.1
+// requires Support.swift
+
 import Cocoa
 import XCPlayground
 
-let FILENAME_COLUMN = "FileName2"
+let FILENAME_COLUMN = "FileName"
 
-public class Node
-{
-    init (_ description: String, _ children: [Node]) {
-        self.description = description
-        self.children = children
-    }
-    
-    convenience init (_ description: String) {
-        self.init(description, [])
-    }
-    
-    public var children : [Node] = []
-    public var description: String = ""
-}
 
 func makeOutline() -> NSOutlineView {
     
-    let column = NSTableColumn(identifier: FILENAME_COLUMN)
-    column.title = "File Name"
-    column.width = 200
-    
     let outline = NSOutlineView(frame: NSMakeRect(0, 0, 250, 150))
-    outline.addTableColumn(column)
+    
+    let fileNameColumn = NSTableColumn(identifier: FILENAME_COLUMN)
+    fileNameColumn.title = "File Name"
+    fileNameColumn.width = 200
+    fileNameColumn.editable = true
+    
+    outline.addTableColumn(fileNameColumn)
     outline.selectionHighlightStyle = .Regular
+    outline.rowSizeStyle = .Default
+    outline.outlineTableColumn = fileNameColumn
     return outline
 }
 
 func makeOutlineDelegate() -> NSOutlineViewDelegate {
     
-    class OutlineViewDelegate : NSObject, NSOutlineViewDelegate {
+    class OutlineViewDelegate : NSObject, NSOutlineViewDelegate, NSTextFieldDelegate {
         
+        
+        // ------ NSOutlineViewDelegate
         
         @objc func outlineView(outlineView: NSOutlineView, shouldExpandItem item: AnyObject) -> Bool {
             return true;
@@ -48,21 +42,41 @@ func makeOutlineDelegate() -> NSOutlineViewDelegate {
                 return recycledCell
             }
             
-            let textField = NSTextField(frame: NSMakeRect(0, 0, 150, outlineView.rowHeight))
-            
             let newCell = NSTableCellView(frame: NSMakeRect(0, 0, 150, outlineView.rowHeight))
-            newCell.addSubview(textField)
-            newCell.textField = textField
             newCell.identifier = columnIdentifier
+            newCell.autoresizingMask = .ViewWidthSizable
             newCell.autoresizesSubviews = true
             
+            let imageField = NSImageView(frame: NSMakeRect(0, 0, 16, outlineView.rowHeight))
+            imageField.alignment = .Center
+            imageField.imageScaling = .ScaleProportionallyUpOrDown
+            newCell.addSubview(imageField)
+            newCell.imageView = imageField
+            
+            let textField = NSTextField(frame: NSMakeRect(0, 0, 120, outlineView.rowHeight))
+            newCell.addSubview(textField)
+            newCell.textField = textField
+            
+            textField.delegate = self
+            textField.bordered = false
+            textField.drawsBackground = false
             textField.bind(NSValueBinding,
                            toObject: newCell,
                            withKeyPath: "objectValue",
                            options: nil)
-            textField.bordered = false
-            textField.drawsBackground = false
+            
             return newCell
+        }
+        
+        // ---- NSTextFieldDelegate
+        
+        @objc override func controlTextDidEndEditing(obj: NSNotification) {
+            
+            if obj.name == NSControlTextDidEndEditingNotification {
+                let textField = obj.object as! NSTextField
+                print ("new value = \(textField.stringValue)")
+            }
+            
         }
     }
     
@@ -70,74 +84,6 @@ func makeOutlineDelegate() -> NSOutlineViewDelegate {
 }
 
 func makeOutlineDataSource(store: [Node]) -> NSOutlineViewDataSource {
-    
-    
-    class OutlineViewDataSource : NSObject, NSOutlineViewDataSource {
-        
-        var store : [Node]
-        
-        init(store:[Node]) {
-            self.store = store
-        }
-        
-        @objc func outlineView(outlineView: NSOutlineView, isItemExpandable item: AnyObject) -> Bool {
-            
-            if item is [Node] {
-                return true
-            }
-            
-            if let node = item as? Node {
-                return node.children.count > 0
-            }
-            
-            return true
-        }
-        
-        @objc func outlineView(outlineView: NSOutlineView, objectValueForTableColumn tableColumn: NSTableColumn?, byItem item: AnyObject?) -> AnyObject? {
-            
-            if let node = item as? Node {
-                return node.description
-            }
-            
-            return nil
-        }
-        
-        @objc func outlineView(outlineView: NSOutlineView, child index: Int, ofItem item: AnyObject?) -> AnyObject {
-            
-            if (item == nil) {
-                return store[index]
-            }
-            
-            if let nodeArray = item as? [Node] {
-                return nodeArray[index]
-            }
-            
-            if let node = item as? Node {
-                return node.children[index]
-            }
-            
-            return Node("WRONG")
-        }
-        
-        @objc func outlineView(outlineView: NSOutlineView, numberOfChildrenOfItem item: AnyObject?) -> Int {
-            
-            if (item == nil) {
-                return store.count;
-            }
-            
-            if let nodeArray = item as? [Node] {
-                return nodeArray.count
-            }
-            
-            if let node = item as? Node {
-                return node.children.count
-            }
-            
-            return 0
-        }
-        
-    }
-    
     return OutlineViewDataSource(store: store)
     
 }
@@ -167,20 +113,10 @@ let outlineDelegate = makeOutlineDelegate()
 outline.setDataSource(dataSource)
 outline.setDelegate(outlineDelegate)
 
-outline.expandItem(outline.itemAtRow(4), expandChildren: true)
-outline.expandItem(outline.itemAtRow(3), expandChildren: true)
-outline.expandItem(outline.itemAtRow(2), expandChildren: true)
-outline.expandItem(outline.itemAtRow(0), expandChildren: true)
-
-let container = NSScrollView(
-    frame: NSMakeRect(0, 0, 400, 160))
+let container = NSScrollView(frame: NSMakeRect(0, 0, 400, 160))
 
 container.documentView = outline
 container.hasVerticalScroller = true;
-
-//dispatch_async(dispatch_get_main_queue(), {
-//    outline.expandItem(nil, expandChildren: true)
-//})
 
 XCPlaygroundPage.currentPage.liveView = container
 
